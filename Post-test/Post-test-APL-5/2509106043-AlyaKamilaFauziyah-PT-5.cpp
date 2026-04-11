@@ -2,8 +2,7 @@
 #include <string>
 #include <limits> 
 #include <iomanip> 
-#include <fstream> // <-- Tambahkan ini untuk File I/O (Simpan/Baca Data)
-
+#include <fstream> 
 using namespace std;
 
 struct User {
@@ -23,9 +22,6 @@ struct Tontonan {
     User* owner_ptr; 
 };
 
-// ==========================================
-// FUNGSI BANTUAN
-// ==========================================
 void cetak_garis() { cout << "\n==================================="; }
 void cetak_garis(string teks) { cout << "\n=== " << teks << " ==="; }
 
@@ -35,9 +31,6 @@ void swap_tontonan(Tontonan* a, Tontonan* b) {
     *b = temp;
 }
 
-// ==========================================
-// FUNGSI SIMPAN & BACA FILE (TUGAS BARU)
-// ==========================================
 const string FILE_NAME = "database_movietrack.txt";
 
 void simpan_data(User* daftar_user, int jumlah_user, Tontonan* daftar, int jumlah_data) {
@@ -47,7 +40,6 @@ void simpan_data(User* daftar_user, int jumlah_user, Tontonan* daftar, int jumla
         return;
     }
 
-    // 1. Simpan Data User
     file << jumlah_user << "\n";
     for (int i = 0; i < jumlah_user; i++) {
         file << daftar_user[i].username << "\n"
@@ -56,7 +48,6 @@ void simpan_data(User* daftar_user, int jumlah_user, Tontonan* daftar, int jumla
              << daftar_user[i].series_nextid << "\n";
     }
 
-    // 2. Simpan Data Tontonan
     file << jumlah_data << "\n";
     for (int i = 0; i < jumlah_data; i++) {
         file << daftar[i].id << "\n"
@@ -65,7 +56,6 @@ void simpan_data(User* daftar_user, int jumlah_user, Tontonan* daftar, int jumla
              << daftar[i].total_eps << "\n"
              << daftar[i].eps_ditonton << "\n"
              << daftar[i].status << "\n"
-             // Simpan username owner-nya saja agar nanti pointernya bisa disambung lagi
              << daftar[i].owner_ptr->username << "\n";
     }
     file.close();
@@ -74,21 +64,18 @@ void simpan_data(User* daftar_user, int jumlah_user, Tontonan* daftar, int jumla
 void muat_data(User* daftar_user, int* jumlah_user, Tontonan* daftar, int* jumlah_data) {
     ifstream file(FILE_NAME);
     if (!file.is_open()) {
-        // Jika file belum ada, biarkan saja (berarti program baru pertama kali jalan)
         return; 
     }
 
-    // 1. Baca Data User
     file >> *jumlah_user; file.ignore();
     for (int i = 0; i < *jumlah_user; i++) {
         getline(file, daftar_user[i].username);
         getline(file, daftar_user[i].password);
         file >> daftar_user[i].movie_nextid;
         file >> daftar_user[i].series_nextid;
-        file.ignore(); // Bersihkan newline
+        file.ignore(); 
     }
 
-    // 2. Baca Data Tontonan
     file >> *jumlah_data; file.ignore();
     for (int i = 0; i < *jumlah_data; i++) {
         file >> daftar[i].id; file.ignore();
@@ -101,7 +88,6 @@ void muat_data(User* daftar_user, int* jumlah_user, Tontonan* daftar, int* jumla
         string owner_username;
         getline(file, owner_username);
         
-        // Proses penting: Menyambungkan kembali pointer owner_ptr ke struct User yang tepat!
         for(int j = 0; j < *jumlah_user; j++) {
             if(daftar_user[j].username == owner_username) {
                 daftar[i].owner_ptr = &daftar_user[j];
@@ -113,9 +99,6 @@ void muat_data(User* daftar_user, int* jumlah_user, Tontonan* daftar, int* jumla
 }
 
 
-// ==========================================
-// METODE SORTING 
-// ==========================================
 void bubbleSort_JudulAsc(Tontonan* daftar, int n) {
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
@@ -152,9 +135,6 @@ void insertionSort_EpsAsc(Tontonan* daftar, int n) {
     }
 }
 
-// ==========================================
-// FUNGSI UTAMA PROGRAM
-// ==========================================
 
 int cari_id(Tontonan* daftar, int jumlah, int target, string owner, string tipe, int iter = 0) {
     if (iter >= jumlah) return -1;
@@ -389,8 +369,6 @@ int main() {
     int jumlah_percobaan = 0;
     bool program_berjalan = true;
 
-    // --- MAGISNYA ADA DI SINI ---
-    // Memuat data dari file saat program pertama kali dijalankan
     muat_data(daftar_user, &jumlah_user, daftar, &jumlah_data);
 
     while (program_berjalan) {
@@ -406,7 +384,6 @@ int main() {
 
         if (user_in == "register") {
             registrasi_akun(daftar_user, &jumlah_user); 
-            // Otomatis simpan data setelah registrasi
             simpan_data(daftar_user, jumlah_user, daftar, jumlah_data);
             continue; 
         } else {
@@ -438,20 +415,20 @@ int main() {
 
                 if (pilihan == 1) {
                     tambah_tontonan(daftar, &jumlah_data, &daftar_user[index_userlogin]);
-                    simpan_data(daftar_user, jumlah_user, daftar, jumlah_data); // Simpan
+                    simpan_data(daftar_user, jumlah_user, daftar, jumlah_data); 
                 }
                 else if (pilihan == 2) lihat_daftar(daftar, jumlah_data, current_user);
                 else if (pilihan == 3) {
                     update_progress(daftar, jumlah_data, current_user);
-                    simpan_data(daftar_user, jumlah_user, daftar, jumlah_data); // Simpan
+                    simpan_data(daftar_user, jumlah_user, daftar, jumlah_data); 
                 }
                 else if (pilihan == 4) {
                     hapus_tontonan(daftar, &jumlah_data, current_user);
-                    simpan_data(daftar_user, jumlah_user, daftar, jumlah_data); // Simpan
+                    simpan_data(daftar_user, jumlah_user, daftar, jumlah_data); 
                 }
                 else if (pilihan == 5) {
                     menu_sorting(daftar, jumlah_data);
-                    simpan_data(daftar_user, jumlah_user, daftar, jumlah_data); // Simpan urutan
+                    simpan_data(daftar_user, jumlah_user, daftar, jumlah_data);
                 }
                 else if (pilihan == 6) {
                     char yakin; cout << "Yakin Logout? (y/n): "; cin >> yakin;
@@ -461,7 +438,7 @@ int main() {
                     char yakin; cout << "Yakin Keluar Program? (y/n): "; cin >> yakin;
                     if (yakin == 'y' || yakin == 'Y') {
                         program_berjalan = false;
-                        simpan_data(daftar_user, jumlah_user, daftar, jumlah_data); // Pastikan tersimpan saat keluar
+                        simpan_data(daftar_user, jumlah_user, daftar, jumlah_data); 
                     }
                     else pilihan = 0;
                 }
